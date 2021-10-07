@@ -1,0 +1,11 @@
+{
+  "name": "TermGame",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/SpikeHD/TermGame.git",
+  "author": "SpikeHD <spikegdofficial@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}
