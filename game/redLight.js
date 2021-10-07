@@ -4,6 +4,7 @@ const { CLEAR } = require('../util/stdHelpers');
 
 let redLight = false;
 let dead = false;
+let active = true;
 
 let secondsElapsed = 0;
 
@@ -24,21 +25,28 @@ let gameState = {
 }
 
 module.exports.play = async () => {
-  let active = true;
 
   draw();
 
   // begin changeLight background stuff
   changeLight();
 
+  // So we don't double-draw when light changes
+  let prevLight = redLight;
 
   const timer = setInterval(() => {
-    secondsElapsed++;
-    draw();
+    if (prevLight == redLight) {
+      secondsElapsed++;
+      draw();
+    }
+
+    prevLight = redLight;
   }, 1000);
 
   while(active) {
     const key = await keypress();
+
+    active = !dead;
 
     switch(key) {
       case 'escape':
@@ -48,12 +56,16 @@ module.exports.play = async () => {
         move();
     }
 
-    active = !dead;
-
     draw();
   }
 
   clearInterval(timer);
+
+  if (dead) {
+    console.log('Good try! You made it a distance of ' + gameState.player.x + ' out of ' + gameState.end)
+  } else {
+    console.log('You did it! You crossed a distance of ' + gameState.player.x);
+  }
 }
 
 function move() {
@@ -61,8 +73,7 @@ function move() {
 
   // Uh oh, we moved during red light!
   if (redLight) dead = true;
-
-  console.log(gameState)
+  if (gameState.player.x >= gameState.end) active = false;
 }
 
 function draw() {
@@ -92,10 +103,16 @@ function draw() {
 }
 
 async function changeLight() {
+  if (!active) return;
+
   setTimeout(() => {
+    if (!active) return;
+
     redLight = !redLight;
     secondsElapsed = 0;
     draw();
     changeLight();
   }, Math.floor(Math.random() * (6 - 2 + 1) + 2) * 1000)
 }
+
+// TODO count up using letters to anticipate light change
